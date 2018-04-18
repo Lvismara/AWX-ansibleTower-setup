@@ -1,0 +1,49 @@
+---
+- hosts: localhost
+  become: yes
+  tasks:
+
+   - name: install docker
+     apt: 
+      name: docker.io
+      state: latest
+
+   - name: install docker-compose
+     apt: 
+      name: docker-compose
+      state: latest
+
+   - name: install git
+     apt: 
+      name: git
+      state: latest
+
+   - name: install phyton
+     apt: 
+      name: python-pip
+      state: latest
+
+   - pip:
+      name: docker-py
+      state: latest
+
+   - name: get the Ansible AWX
+     command: mkdir awx
+     command: cd awx
+     command: git clone https://github.com/ansible/awx.git
+
+   - name: change the default user of AWX
+     lineinfile:
+      path: ./awx/installer/inventory
+      regexp: '* default_admin_user=*'
+      line: 'default_admin_user=userawx'
+
+   - name: change the default pass of AWX
+     lineinfile:
+      path: ./awx/installer/inventory
+      regexp: '* default_admin_password=*'
+      line: 'default_admin_password=userawx@123#'
+
+   - name: install Ansible AWX
+     command: ansible-playbook -i awx/installer/inventory awx/installer/install.yml
+
